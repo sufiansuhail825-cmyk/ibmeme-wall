@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IB Meme Wall</title>
+<meta name="description" content="Post and download memes about IB student life. No sign up. Just memes.">
+<meta property="og:title" content="IB Meme Wall">
+<meta property="og:description" content="Surviving IB, one meme at a time. No sign up needed.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>😵‍💫</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#fff8ec; --ink:#1b1b2f; --muted:#5d5d78; --card:#ffffff;
+    --pop:#ff4f5e; --pop2:#2f6bff; --pop3:#ffd23f; --ok:#16a06b; --line:#1b1b2f;
+    --shadow:4px 4px 0 var(--line);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#14141f; --ink:#f4f1ea; --muted:#a6a6c0; --card:#1f1f2e; --line:#f4f1ea; }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,sans-serif;line-height:1.45;
+    background-image:radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ink) 12%, transparent) 1px, transparent 0);background-size:22px 22px}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+  h1,h2{font-family:'Bricolage Grotesque',sans-serif;margin:0}
+  header.hero{padding:40px 0 24px}
+  .badge{display:inline-block;background:var(--pop3);color:#1b1b2f;border:2px solid var(--line);border-radius:999px;padding:4px 12px;font-weight:700;font-size:.8rem;box-shadow:2px 2px 0 var(--line);transform:rotate(-2deg)}
+  h1{font-size:clamp(2.2rem,7vw,4.4rem);line-height:1;margin:14px 0 10px;letter-spacing:-.02em;font-weight:800}
+  h1 span{color:var(--pop)}
+  .sub{color:var(--muted);max-width:560px;font-size:1.05rem;margin:0 0 18px}
+  .btn{font:inherit;font-weight:700;cursor:pointer;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 16px;box-shadow:var(--shadow);transition:transform .08s, box-shadow .08s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+  .btn:hover{transform:translate(-1px,-1px);box-shadow:6px 6px 0 var(--line)}
+  .btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--line)}
+  .btn.primary{background:var(--pop);color:#fff}
+  .btn.blue{background:var(--pop2);color:#fff}
+  .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+  .btn.small{padding:6px 10px;font-size:.85rem;box-shadow:2px 2px 0 var(--line);border-radius:9px}
+  .btn:focus-visible,.chip:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--pop2);outline-offset:2px}
+
+  /* upload panel */
+  #upload{background:var(--card);border:2px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:18px;margin:8px 0 28px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:760px){#upload{grid-template-columns:1fr}}
+  #drop{border:3px dashed var(--muted);border-radius:14px;min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px;cursor:pointer;position:relative;overflow:hidden;transition:background .15s,border-color .15s}
+  #drop.over{background:color-mix(in srgb,var(--pop3) 30%,transparent);border-color:var(--pop)}
+  #drop img{max-width:100%;max-height:300px;border-radius:8px;display:none}
+  #drop .hint b{font-size:1.1rem}
+  #drop .hint small{color:var(--muted)}
+  label{font-weight:700;font-size:.9rem;display:block;margin:0 0 6px}
+  input[type=text],select{width:100%;font:inherit;padding:10px 12px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+  .field{margin-bottom:14px}
+  .counter{font-size:.78rem;color:var(--muted);text-align:right;margin-top:3px}
+  .fine{font-size:.8rem;color:var(--muted);margin:10px 0 0}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .msg{font-weight:700;font-size:.9rem;min-height:1.2em;margin-top:8px}
+  .msg.err{color:var(--pop)} .msg.ok{color:var(--ok)}
+
+  /* toolbar */
+  .toolbar{display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{font:inherit;font-weight:700;font-size:.85rem;border:2px solid var(--line);background:var(--card);color:var(--ink);padding:5px 12px;border-radius:999px;cursor:pointer}
+  .chip[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+  .seg{display:inline-flex;border:2px solid var(--line);border-radius:10px;overflow:hidden}
+  .seg button{font:inherit;font-weight:700;border:0;background:var(--card);color:var(--ink);padding:6px 14px;cursor:pointer}
+  .seg button[aria-pressed=true]{background:var(--pop2);color:#fff}
+
+  /* gallery */
+  #grid{columns:3 280px;column-gap:16px}
+  .card{break-inside:avoid;background:var(--card);border:2px solid var(--line);border-radius:14px;box-shadow:var(--shadow);margin:0 0 18px;overflow:hidden}
+  .card .imgbtn{display:block;width:100%;border:0;padding:0;background:#0001;cursor:zoom-in}
+  .card img{display:block;width:100%;height:auto}
+  .card .body{padding:10px 12px 12px}
+  .cap{font-weight:700;margin:0 0 8px;word-wrap:break-word}
+  .cap:empty{display:none}
+  .tag{display:inline-block;font-size:.72rem;font-weight:700;background:var(--pop3);color:#1b1b2f;border:1.5px solid var(--line);border-radius:999px;padding:1px 8px;margin-bottom:8px}
+  .actions{display:flex;gap:6px;flex-wrap:wrap}
+  .actions .liked{background:var(--pop);color:#fff}
+  .empty{text-align:center;color:var(--muted);padding:50px 10px;font-size:1.05rem}
+  #more{display:block;margin:10px auto 40px}
+  footer{padding:20px 0 50px;color:var(--muted);font-size:.85rem;text-align:center}
+
+  /* lightbox + toast */
+  #lb{position:fixed;inset:0;background:#000d;display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+  #lb.open{display:flex}
+  #lb img{max-width:100%;max-height:92vh;border-radius:10px;border:3px solid #fff}
+  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:12px;font-weight:700;transition:transform .25s;z-index:60;max-width:90vw}
+  #toast.show{transform:translateX(-50%) translateY(0)}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <span class="badge">No sign up. No catch.</span>
+    <h1>IB <span>Meme</span> Wall</h1>
+    <p class="sub">Surviving the Diploma or MYP, one meme at a time. Post yours, grab anyone's, and pretend you are not procrastinating on your IA.</p>
+    <button class="btn primary" id="toggleUpload" aria-expanded="false" aria-controls="upload">+ Post a meme</button>
+  </header>
+
+  <section id="upload" hidden aria-label="Upload a meme">
+    <div id="drop" tabindex="0" role="button" aria-label="Choose an image, or drop one here">
+      <img id="preview" alt="Preview of your meme">
+      <div class="hint" id="hint">
+        <b>Drop an image here</b><br>
+        <small>or click to browse. You can also paste with Ctrl/Cmd+V.<br>JPG, PNG, GIF, WebP.</small>
+      </div>
+      <input type="file" id="file" accept="image/png,image/jpeg,image/gif,image/webp" class="sr" tabindex="-1">
+    </div>
+    <form id="form">
+      <div class="field">
+        <label for="caption">Caption (optional)</label>
+        <input type="text" id="caption" maxlength="120" placeholder="Me at 2am: 'just one more TOK paragraph'">
+        <div class="counter"><span id="count">0</span>/120</div>
+      </div>
+      <div class="field">
+        <label for="tag">Category</label>
+        <select id="tag"></select>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="submit" type="submit" disabled>Post it</button>
+        <button class="btn" id="clear" type="button">Clear</button>
+      </div>
+      <div class="msg" id="formMsg" role="status" aria-live="polite"></div>
+      <p class="fine">Keep it fun. No hate, no personal info, and no photos of classmates or teachers without their OK. Only post memes you made or that are fair to share. Reported memes get hidden.</p>
+    </form>
+  </section>
+
+  <div class="toolbar">
+    <div class="chips" id="chips" role="group" aria-label="Filter by category"></div>
+    <div class="seg" role="group" aria-label="Sort memes">
+      <button type="button" data-sort="new" aria-pressed="true">Newest</button>
+      <button type="button" data-sort="top" aria-pressed="false">Top</button>
+    </div>
+  </div>
+
+  <main>
+    <div id="grid"></div>
+    <div class="empty" id="empty" hidden>No memes here yet. Be the first to post one.</div>
+    <button class="btn" id="more" hidden>Load more</button>
+  </main>
+
+  <footer>Made by and for IB students. Not affiliated with the International Baccalaureate Organization. <a href="/admin.html" rel="nofollow" style="color:inherit">Admin</a></footer>
+</div>
+
+<div id="lb" role="dialog" aria-label="Meme viewer" aria-modal="true"><img alt=""></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const TAGS = ["General","TOK","Extended Essay","IA","CAS","Exams","Sleep","Teachers"];
+const $ = s => document.querySelector(s);
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k) || "[]"); }catch{ return []; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} }
+};
+const liked = new Set(store.get("liked"));
+const reported = new Set(store.get("reported"));
+const state = { sort:"new", tag:"All", offset:0, loading:false, admin:false };
+
+function toast(text){
+  const t = $("#toast"); t.textContent = text; t.classList.add("show");
+  clearTimeout(toast.t); toast.t = setTimeout(()=>t.classList.remove("show"), 2600);
+}
+
+/* ---------- filters ---------- */
+function buildChips(){
+  const box = $("#chips");
+  ["All", ...TAGS].forEach(t => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.type = "button"; b.textContent = t;
+    b.setAttribute("aria-pressed", t === state.tag);
+    b.onclick = () => { state.tag = t; [...box.children].forEach(c=>c.setAttribute("aria-pressed", c.textContent===t)); reload(); };
+    box.appendChild(b);
+  });
+  TAGS.forEach(t => { const o = document.createElement("option"); o.value = o.textContent = t; $("#tag").appendChild(o); });
+}
+document.querySelectorAll(".seg button").forEach(b => b.onclick = () => {
+  state.sort = b.dataset.sort;
+  document.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  reload();
+});
+
+/* ---------- gallery ---------- */
+function card(m){
+  const el = document.createElement("article"); el.className = "card"; el.dataset.id = m.id;
+
+  const ib = document.createElement("button"); ib.className = "imgbtn"; ib.type = "button";
+  ib.setAttribute("aria-label", "View meme larger");
+  const img = document.createElement("img"); img.loading = "lazy"; img.src = "/api/img/" + m.id;
+  img.alt = m.caption || "IB meme";
+  ib.appendChild(img); ib.onclick = () => openLb(img.src, img.alt);
+  el.appendChild(ib);
+
+  const body = document.createElement("div"); body.className = "body";
+  const tag = document.createElement("span"); tag.className = "tag"; tag.textContent = m.tag; body.appendChild(tag);
+  const cap = document.createElement("p"); cap.className = "cap"; cap.textContent = m.caption; body.appendChild(cap);
+
+  const act = document.createElement("div"); act.className = "actions";
+  const like = document.createElement("button"); like.className = "btn small"; like.type = "button";
+  const paintLike = (n) => { like.textContent = (liked.has(m.id) ? "♥ " : "♡ ") + n; like.classList.toggle("liked", liked.has(m.id)); like.setAttribute("aria-pressed", liked.has(m.id)); };
+  let likes = m.likes; paintLike(likes);
+  like.onclick = async () => {
+    const undo = liked.has(m.id);
+    undo ? liked.delete(m.id) : liked.add(m.id); store.set("liked", [...liked]);
+    likes += undo ? -1 : 1; paintLike(likes);
+    try{ const r = await fetch("/api/like/" + m.id, {method:"POST", body: JSON.stringify({undo})}); const d = await r.json(); if (r.ok) { likes = d.likes; paintLike(likes); } }catch{}
+  };
+  const dl = document.createElement("a"); dl.className = "btn small"; dl.textContent = "⬇ Download";
+  dl.href = "/api/img/" + m.id + "?download=1"; dl.setAttribute("download", "");
+  const rep = document.createElement("button"); rep.className = "btn small"; rep.type = "button"; rep.textContent = "⚑ Report";
+  if (reported.has(m.id)) { rep.textContent = "Reported"; rep.disabled = true; }
+  rep.onclick = async () => {
+    if (!confirm("Report this meme as inappropriate?")) return;
+    try{
+      const r = await fetch("/api/report/" + m.id, {method:"POST"});
+      if (!r.ok) throw 0;
+      reported.add(m.id); store.set("reported", [...reported]);
+      rep.textContent = "Reported"; rep.disabled = true; toast("Thanks. We will review it.");
+    }catch{ toast("Could not send the report. Try again."); }
+  };
+  act.append(like, dl, rep);
+  if (state.admin) {
+    const del = document.createElement("button"); del.className = "btn small"; del.type = "button"; del.textContent = "🗑 Delete";
+    del.style.background = "var(--pop)"; del.style.color = "#fff";
+    del.onclick = async () => {
+      if (!confirm("Delete this meme permanently?")) return;
+      try{
+        const r = await fetch("/api/admin/delete/" + m.id, { method:"POST", headers:{ "x-admin":"1" } });
+        if (!r.ok) throw 0;
+        el.remove(); toast("Meme deleted");
+      }catch{ toast("Delete failed. Log in again at /admin.html"); }
+    };
+    act.append(del);
+  }
+  body.appendChild(act); el.appendChild(body);
+  return el;
+}
+
+async function load(){
+  if (state.loading) return; state.loading = true;
+  $("#more").disabled = true;
+  try{
+    const q = new URLSearchParams({ sort: state.sort, tag: state.tag, offset: state.offset, limit: 18 });
+    const r = await fetch("/api/memes?" + q); if (!r.ok) throw 0;
+    const d = await r.json();
+    d.memes.forEach(m => $("#grid").appendChild(card(m)));
+    state.offset += d.memes.length;
+    $("#more").hidden = !d.hasMore;
+    $("#empty").hidden = state.offset > 0;
+  }catch{ toast("Could not load memes. Refresh to try again."); }
+  state.loading = false; $("#more").disabled = false;
+}
+function reload(){ $("#grid").innerHTML = ""; state.offset = 0; $("#more").hidden = true; load(); }
+$("#more").onclick = load;
+
+/* ---------- lightbox ---------- */
+function openLb(src, alt){ const lb = $("#lb"); lb.querySelector("img").src = src; lb.querySelector("img").alt = alt; lb.classList.add("open"); }
+$("#lb").onclick = () => $("#lb").classList.remove("open");
+addEventListener("keydown", e => { if (e.key === "Escape") $("#lb").classList.remove("open"); });
+
+/* ---------- upload ---------- */
+let pending = null; // File ready to upload
+const MAX = 4 * 1024 * 1024;
+
+$("#toggleUpload").onclick = () => {
+  const p = $("#upload"), open = p.hidden;
+  p.hidden = !open; $("#toggleUpload").setAttribute("aria-expanded", open);
+  $("#toggleUpload").textContent = open ? "× Close" : "+ Post a meme";
+};
+$("#drop").onclick = () => $("#file").click();
+$("#drop").onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("#file").click(); } };
+$("#file").onchange = e => e.target.files[0] && accept(e.target.files[0]);
+["dragenter","dragover"].forEach(n => $("#drop").addEventListener(n, e => { e.preventDefault(); $("#drop").classList.add("over"); }));
+["dragleave","drop"].forEach(n => $("#drop").addEventListener(n, e => { e.preventDefault(); $("#drop").classList.remove("over"); }));
+$("#drop").addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) accept(f); });
+addEventListener("paste", e => {
+  const item = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith("image/"));
+  if (item) { if ($("#upload").hidden) $("#toggleUpload").click(); accept(item.getAsFile()); }
+});
+$("#caption").oninput = e => $("#count").textContent = e.target.value.length;
+
+function msg(text, kind){ const m = $("#formMsg"); m.textContent = text; m.className = "msg " + (kind || ""); }
+
+// Shrink big images in the browser so uploads are fast and fit the size limit.
+async function shrink(file){
+  if (file.type === "image/gif") return file; // keep animation
+  const bmp = await createImageBitmap(file);
+  const scale = Math.min(1, 1400 / Math.max(bmp.width, bmp.height));
+  if (scale === 1 && file.size < 1.5 * 1024 * 1024) return file;
+  const c = document.createElement("canvas");
+  c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
+  const ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(bmp, 0, 0, c.width, c.height);
+  const blob = await new Promise(res => c.toBlob(res, "image/jpeg", 0.86));
+  return new File([blob], "meme.jpg", { type: "image/jpeg" });
+}
+
+async function accept(file){
+  msg("");
+  if (!/^image\/(png|jpeg|gif|webp)$/.test(file.type)) return msg("Only JPG, PNG, GIF or WebP please.", "err");
+  try{ pending = await shrink(file); }catch{ return msg("Could not read that image.", "err"); }
+  if (pending.size > MAX) { pending = null; return msg("Image is over 4MB even after shrinking. Try a smaller one.", "err"); }
+  const p = $("#preview"); p.src = URL.createObjectURL(pending); p.style.display = "block"; $("#hint").style.display = "none";
+  $("#submit").disabled = false;
+}
+function resetForm(){
+  pending = null; $("#file").value = ""; $("#preview").style.display = "none"; $("#hint").style.display = "";
+  $("#caption").value = ""; $("#count").textContent = "0"; $("#submit").disabled = true;
+}
+$("#clear").onclick = () => { resetForm(); msg(""); };
+
+$("#form").onsubmit = async e => {
+  e.preventDefault(); if (!pending) return;
+  $("#submit").disabled = true; msg("Uploading...");
+  const fd = new FormData();
+  fd.append("file", pending); fd.append("caption", $("#caption").value); fd.append("tag", $("#tag").value);
+  try{
+    const r = await fetch("/api/upload", { method:"POST", body: fd });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.error || "Upload failed.");
+    resetForm(); msg("Posted! Your meme is live.", "ok"); toast("Meme posted");
+    if (state.tag === "All" || state.tag === d.meme.tag) {
+      $("#empty").hidden = true; $("#grid").prepend(card(d.meme));
+    }
+  }catch(err){ msg(err.message, "err"); $("#submit").disabled = false; }
+};
+
+(async () => {
+  try{ const r = await fetch("/api/admin/me"); state.admin = !!(await r.json()).admin; }catch{}
+  buildChips(); load();
+})();
+</script>
+</body>
+</html>

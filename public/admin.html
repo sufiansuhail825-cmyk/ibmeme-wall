@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Meme Wall Admin</title>
+<style>
+  :root{color-scheme:light dark}
+  body{font-family:system-ui,sans-serif;margin:0;padding:20px;background:#f6f6f9;color:#1b1b2f}
+  @media (prefers-color-scheme: dark){body{background:#14141f;color:#f4f1ea}.c,#login{background:#1f1f2e!important;border-color:#555!important}button,input{background:#2a2a3c;color:inherit}}
+  h1{margin:0 0 12px}
+  a{color:#2f6bff}
+  #login{max-width:360px;margin:60px auto;background:#fff;border:1px solid #ccc;border-radius:12px;padding:22px}
+  #login label{display:block;font-weight:600;margin:12px 0 4px}
+  #login input{width:100%}
+  input{padding:9px 10px;border:1px solid #999;border-radius:8px;font:inherit}
+  button{padding:8px 12px;border:1px solid #1b1b2f;background:#fff;border-radius:8px;font:inherit;cursor:pointer}
+  button.primary{background:#2f6bff;color:#fff;border-color:#2f6bff;margin-top:16px;width:100%}
+  button.danger{background:#d92d3a;color:#fff;border-color:#d92d3a}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+  .c{background:#fff;border:1px solid #ccc;border-radius:10px;padding:8px;font-size:.85rem}
+  .c.hidden{outline:3px solid #d92d3a}
+  .c img{width:100%;border-radius:6px;display:block;margin-bottom:6px}
+  .c .row{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+  .err{color:#d92d3a;font-weight:600;min-height:1.3em;margin-top:10px}
+  #msg{font-weight:600}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<form id="login" autocomplete="on">
+  <h1>Admin login</h1>
+  <label for="user">Login id</label>
+  <input id="user" name="username" type="text" autocomplete="username" required>
+  <label for="pass">Password</label>
+  <input id="pass" name="password" type="password" autocomplete="current-password" required>
+  <button class="primary" type="submit" id="loginBtn">Log in</button>
+  <div class="err" id="loginErr" role="alert"></div>
+  <p><a href="/">Back to the meme wall</a></p>
+</form>
+
+<section id="panel" hidden>
+  <h1>Meme Wall Admin</h1>
+  <div class="bar">
+    <button id="reload">Refresh</button>
+    <button id="onlyRep">Show reported only</button>
+    <a href="/">View site</a>
+    <button id="logout">Log out</button>
+    <span id="msg"></span>
+  </div>
+  <div class="grid" id="grid"></div>
+</section>
+
+<script>
+const $ = s => document.querySelector(s);
+const H = { "x-admin": "1", "content-type": "application/json" };
+let data = [], hideAt = 3, onlyReported = false;
+
+async function api(path, opts = {}) {
+  const r = await fetch("/api/admin/" + path, { ...opts, headers: { ...H, ...(opts.headers || {}) } });
+  const d = await r.json().catch(() => ({}));
+  return { ok: r.ok, status: r.status, d };
+}
+
+function showPanel(on) { $("#login").hidden = on; $("#panel").hidden = !on; }
+
+async function load() {
+  $("#msg").textContent = "Loading...";
+  const { ok, status, d } = await api("list");
+  if (!ok) { if (status === 401) showPanel(false); $("#msg").textContent = d.error || "Failed"; return; }
+  data = d.memes; hideAt = d.hideAt;
+  $("#msg").textContent = data.length + " memes";
+  render();
+}
+
+function render() {
+  const g = $("#grid"); g.innerHTML = "";
+  data.filter(m => !onlyReported || m.reports > 0).forEach(m => {
+    const el = document.createElement("div"); el.className = "c" + (m.reports >= hideAt ? " hidden" : "");
+    const img = document.createElement("img"); img.loading = "lazy"; img.src = "/api/img/" + m.id; img.alt = m.caption || "meme";
+    const t = document.createElement("div"); t.textContent = (m.caption || "(no caption)") + " [" + m.tag + "]";
+    const s = document.createElement("div"); s.textContent = "Likes " + m.likes + " | Reports " + m.reports + (m.reports >= hideAt ? " (HIDDEN)" : "");
+    const row = document.createElement("div"); row.className = "row";
+    const del = document.createElement("button"); del.className = "danger"; del.textContent = "Delete";
+    del.onclick = async () => {
+      if (!confirm("Delete this meme permanently?")) return;
+      const r = await api("delete/" + m.id, { method: "POST" });
+      if (r.ok) { data = data.filter(x => x.id !== m.id); render(); $("#msg").textContent = data.length + " memes"; }
+      else $("#msg").textContent = r.d.error || "Delete failed";
+    };
+    const clr = document.createElement("button"); clr.textContent = "Clear reports";
+    clr.onclick = async () => { const r = await api("clear/" + m.id, { method: "POST" }); if (r.ok) { m.reports = 0; render(); } };
+    row.append(del, clr); el.append(img, t, s, row); g.appendChild(el);
+  });
+}
+
+$("#login").onsubmit = async e => {
+  e.preventDefault(); $("#loginErr").textContent = ""; $("#loginBtn").disabled = true;
+  const r = await api("login", { method: "POST", body: JSON.stringify({ user: $("#user").value, pass: $("#pass").value }) });
+  $("#loginBtn").disabled = false;
+  if (!r.ok) { $("#loginErr").textContent = r.d.error || "Login failed."; return; }
+  $("#pass").value = ""; showPanel(true); load();
+};
+$("#logout").onclick = async () => { await api("logout", { method: "POST" }); showPanel(false); $("#grid").innerHTML = ""; };
+$("#reload").onclick = load;
+$("#onlyRep").onclick = () => { onlyReported = !onlyReported; $("#onlyRep").textContent = onlyReported ? "Show all" : "Show reported only"; render(); };
+
+(async () => {
+  const { d } = await api("me");
+  if (d.admin) { showPanel(true); load(); } else { showPanel(false); }
+})();
+</script>
+</body>
+</html>
