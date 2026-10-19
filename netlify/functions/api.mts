@@ -1,4 +1,4 @@
-import type { Context, Config } from "@netlify/functions";
+import type { Context, Config } from "@netlify/functions"; //v2
 import { getStore } from "@netlify/blobs";
 
 const MAX_BYTES = 4 * 1024 * 1024; // keep under the ~6MB function payload limit
